@@ -1,25 +1,21 @@
 # IB_HEX_BOT 🤖
 
-IB_HEX_BOT est un bot WhatsApp développé avec **Baileys** qui permet de gérer des commandes et des médias view-once facilement.
+# IB_HEX_BOT
 
-## Commandes disponibles
+Un bot WhatsApp multi-appareils pour automatiser des commandes personnalisées comme 🥷 et 💯.  
+N'oubliez pas de laisser une ⭐ si le projet vous plaît !
 
-Toutes les commandes commencent par `Ib ` suivi de la commande :
+![IB_HEX_BOT](https://i.ibb.co/chGX7W8v/IMG-20260118-WA0214.jpg) <!-- Remplace avec ton image -->
 
-- `Ib menu` → Affiche le menu des commandes
-- `Ib ai` → Active la commande IA
-- `Ib profile` → Affiche ton profil
-- `Ib 🥷` → Débloque le dernier message view-once
-- `Ib 💯` → Sauvegarde le dernier message view-once dans ton privé
-- `Ib toimage` → Convertir en image
-- `Ib image` → Récupérer une image
-- `Ib antilink` → Protection anti-link activée
-- `Ib antimentiongc` → Protection anti-mention activée
-- `Ib tagall` → Tag tous les membres
-- `Ib group open/close` → Ouvrir ou fermer le groupe
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
+[![Baileys](https://img.shields.io/badge/Baileys-Web%20API-orange)](https://github.com/adiwajshing/Baileys)
+[![Stars](https://img.shields.io/github/stars/ton_user/IB_HEX_BOT)](https://github.com/ton_user/IB_HEX_BOT/stargazers)
+[![Forks](https://img.shields.io/github/forks/ton_user/IB_HEX_BOT)](https://github.com/ton_user/IB_HEX_BOT/network/members)
 
-## Installation
+---
 
-1. Cloner le dépôt :  
-```bash
-git clone https://github.com/amalechour2424-lab/IB_HEX_BOT.git
+## 🚀 Déploiement de IB_HEX_BOT
+
+### Étape 1 : Fork du dépôt GitHub
+🔗 Fork le repo pour commencer  
+[FORKE LE REPO](https://github.com/amalechour2424-lab/IB_HEX_BOT/fork)
