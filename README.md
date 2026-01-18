@@ -1,6 +1,6 @@
 # IB_HEX_BOT 🤖
 
-# IB_HEX_BOT
+# IBRAHIMA SORY SACKO 🥷
 
 Un bot WhatsApp multi-appareils pour automatiser des commandes personnalisées comme 🥷 et 💯.  
 N'oubliez pas de laisser une ⭐ si le projet vous plaît !
