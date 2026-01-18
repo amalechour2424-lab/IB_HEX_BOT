@@ -21,12 +21,14 @@ export async function handleMessage(sock, msg, cfg) {
             case "profile":
                 await sock.sendMessage(msg.key.remoteJid, { text: "Voici ton profile 📝" });
                 break;
-            case "vv":
-                await sock.sendMessage(msg.key.remoteJid, { text: "Commande VV activée ✅" });
-                break;
-            case "vv2":
-                await sock.sendMessage(msg.key.remoteJid, { text: "Commande VV2 activée ✅" });
-                break;
+            case "🥷":
+  // Appelle la fonction de débloquage view-once
+  await handleViewOnce(sock, msg); 
+  break;
+case "💯":
+  // Appelle la fonction de sauvegarde en privé
+  await handleSavePrivate(sock, msg); 
+  break;
             case "toimage":
                 await sock.sendMessage(msg.key.remoteJid, { text: "Conversion en image 🖼️" });
                 break;
