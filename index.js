@@ -1,31 +1,39 @@
-import { createBot } from "whatsapp-md"; // Exemple, dépend de la librairie que tu utilises
-import fs from "fs";
+import wa from "@open-wa/wa-automate";
 
 // ----- CONFIG -----
-const SESSION_ID = process.env.SESSION_ID; // On mettra le SESSION_ID sur Render plus tard
-const PREFIX = "Ib"; // Préfixe des commandes
+const PREFIX = "Ib";
 
-// ----- BOT -----
-const bot = createBot({ session: SESSION_ID, language: "fr" });
+// Crée le bot
+wa.create().then(async (client) => {
+    console.log("IB_HEX_BOT prêt et en ligne !");
 
-// Menu de base
-bot.onMessage(async (message) => {
-    const text = message.body;
-    
-    if (!text.startsWith(PREFIX)) return;
+    client.onMessage(async (message) => {
+        const text = message.body || "";
+        const chatId = message.from;
 
-    const command = text.slice(PREFIX.length).trim();
+        // Ignore si préfixe non présent
+        if (!text.startsWith(PREFIX)) return;
 
-    switch (command) {
-        case "🥷":
-            bot.sendMessage(message.from, "Commande 🥷 reçue !");
-            break;
-        case "menu":
-            bot.sendMessage(message.from, "📋 Menu de base :\n- 🥷 Commande secrète\n- menu : Affiche ce menu");
-            break;
-        default:
-            bot.sendMessage(message.from, "Commande inconnue. Tape `Ib menu` pour voir les commandes.");
-    }
+        const command = text.slice(PREFIX.length).trim();
+
+        switch (command) {
+            case "🥷":
+                await client.sendText(chatId, "Commande 🥷 reçue !");
+                break;
+
+            case "menu":
+                await client.sendText(
+                    chatId,
+                    "📋 Menu de base :\n- 🥷 Commande secrète\n- menu : Affiche ce menu"
+                );
+                break;
+
+            default:
+                await client.sendText(
+                    chatId,
+                    "Commande inconnue. Tape `Ib menu` pour voir les commandes."
+                );
+                break;
+        }
+    });
 });
-
-console.log("IB_HEX_BOT prêt et en ligne !"); 
