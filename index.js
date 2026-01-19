@@ -1,26 +1,44 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const {
+  default: makeWASocket,
+  useMultiFileAuthState
+} = require("@whiskeysockets/baileys")
 
-const client = new Client({
-    authStrategy: new LocalAuth()
-});
+const P = require("pino")
+const fs = require("fs")
+const config = require("./config")
 
-// Affiche le QR code pour scanner WhatsApp
-client.on('qr', qr => {
-    qrcode.generate(qr, { small: true });
-    console.log('Scanne le QR code ci-dessus avec WhatsApp');
-});
+async function startBot() {
+  const { state, saveCreds } = await useMultiFileAuthState("./session")
 
-// Quand le bot est prêt
-client.on('ready', () => {
-    console.log('IB_HEX_BOT est lancé avec succès ! ✅');
-});
+  const sock = makeWASocket({
+    logger: P({ level: "silent" }),
+    auth: state,
+    printQRInTerminal: true
+  })
 
-// Exemple de commande simple 🥷
-client.on('message', message => {
-    if(message.body.toLowerCase() === '🥷') {
-        message.reply('Menu de base :\n1️⃣ Option 1\n2️⃣ Option 2\n3️⃣ Option 3');
+  sock.ev.on("creds.update", saveCreds)
+
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+    const msg = messages[0]
+    if (!msg.message || msg.key.fromMe) return
+
+    const text =
+      msg.message.conversation ||
+      msg.message.extendedTextMessage?.text ||
+      ""
+
+    if (!text.startsWith(config.prefix)) return
+
+    const args = text.slice(config.prefix.length).trim().split(/ +/)
+    const cmd = args.shift().toLowerCase()
+
+    try {
+      const command = require(`./commands/${cmd}.js`)
+      command.execute(sock, msg, args)
+    } catch {
+      // commande inexistante
     }
-});
+  })
+}
 
-client.initialize();
+startBot()
