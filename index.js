@@ -73,13 +73,62 @@ async function startBot() {
             if (text.startsWith('Ib')) { // préfixe obligatoire
                 const command = text.slice(2).trim().toLowerCase();
 
-                // COMMANDES DE BASE
+                // ---------------- COMMANDES DE BASE ----------------
                 if (command === 'menu') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Voici le menu IB_HEX_BOT 🥷' });
                 } else if (command === 'alive') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'IB_HEX_BOT est actif ! ✅' });
+                } else if (command === 'ping') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Pong 🏓' });
+                } else if (command === 'owner') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Propriétaire : IbSacko' });
+                } else if (command === 'dev') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Développeur : Sacko' });
                 }
-                // Ajoute ici toutes tes autres commandes du menu IB_HEX_BOT
+
+                // ---------------- COMMANDES OWNER ----------------
+                else if (command === 'join') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Commande join exécutée (exemple)' });
+                } else if (command === 'leave') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Commande leave exécutée (exemple)' });
+                } else if (command === 'update') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Bot mis à jour (exemple)' });
+                }
+
+                // ---------------- COMMANDES IA ----------------
+                else if (command === 'ai' || command === 'chatbot' || command === 'gpt') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'IA en cours (exemple)' });
+                }
+
+                // ---------------- CONVERTISSEUR ----------------
+                else if (command === 'attp' || command === 'sticker') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Conversion en sticker (exemple)' });
+                }
+
+                // ---------------- RECHERCHE ----------------
+                else if (command === 'google' || command === 'video' || command === 'song') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Recherche en cours (exemple)' });
+                }
+
+                // ---------------- DIVERTISSEMENT ----------------
+                else if (command === 'goodnight' || command === 'anime' || command === 'profile') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Fun command executed (exemple)' });
+                }
+
+                // ---------------- REACTIONS ----------------
+                else if (command === 'wave' || command === 'dance' || command === 'smile') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Reaction exécutée (exemple)' });
+                }
+
+                // ---------------- HENTAI ----------------
+                else if (command === 'hentai' || command === 'hneko') {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Hentai command (exemple)' });
+                }
+
+                // Commande inconnue
+                else {
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'Commande inconnue. Tape Ib menu pour voir la liste.' });
+                }
             }
         } catch (err) {
             console.log('Erreur message:', err);
