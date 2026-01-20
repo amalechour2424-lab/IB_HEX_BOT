@@ -1,7 +1,7 @@
 {
   "name": "ib-hex-bot",
   "version": "2.0.0",
-  "description": "Bot WhatsApp IB HEX BOT",
+  "description": "Bot WhatsApp IB HEX BOT complet",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
