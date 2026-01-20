@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: IB-HEX-BOT
-    env: node
-    plan: free
-    buildCommand: npm install
-    startCommand: npm start
