@@ -2,17 +2,18 @@
 const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
 const { Boom } = require('@hapi/boom');
 const QRCode = require('qrcode');
-const fs = require('fs');
 const express = require('express');
 
 // ------------------- EXPRESS -------------------
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Page principale
 app.get('/', (req, res) => {
     res.send('IB_HEX_BOT est en ligne 🥷');
 });
 
+// Page QR code
 app.get('/qr', async (req, res) => {
     if (!global.qrCodeString) return res.send('QR non généré pour le moment.');
     try {
@@ -34,18 +35,22 @@ async function startBot() {
         printQRInTerminal: false
     });
 
+    // Gestion QR et connexion
     sock.ev.on('connection.update', (update) => {
-        if (update.qr) {
-            global.qrCodeString = update.qr; // stocke le QR pour /qr
+        const { connection, lastDisconnect, qr } = update;
+
+        if (qr) {
+            global.qrCodeString = qr; // stocke le QR pour /qr
             console.log('QR reçu ! Ouvre /qr pour le scanner avec WhatsApp.');
         }
 
-        const { connection, lastDisconnect } = update;
         if (connection === 'close') {
-            const reason = new Boom(lastDisconnect?.error).output.statusCode;
+            const reason = lastDisconnect?.error?.output?.statusCode;
             console.log('Connexion fermée, raison :', reason);
             if (reason !== DisconnectReason.loggedOut) {
                 startBot(); // reconnect automatique
+            } else {
+                console.log('❌ Déconnecté définitivement, supprime session.json pour recommencer.');
             }
         } else if (connection === 'open') {
             console.log('✅ IB_HEX_BOT connecté à WhatsApp !');
@@ -54,7 +59,7 @@ async function startBot() {
 
     sock.ev.on('creds.update', saveState);
 
-    // Exemple simple de message automatique
+    // Gestion des messages
     sock.ev.on('messages.upsert', async (m) => {
         try {
             const msg = m.messages[0];
@@ -66,12 +71,13 @@ async function startBot() {
             if (text.startsWith('Ib')) { // préfixe obligatoire
                 const command = text.slice(2).trim().toLowerCase();
 
+                // COMMANDES DE BASE
                 if (command === 'menu') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Voici le menu IB_HEX_BOT 🥷' });
                 } else if (command === 'alive') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'IB_HEX_BOT est actif ! ✅' });
                 }
-                // Ajoute ici tes autres commandes du bot
+                // Ici tu peux ajouter toutes tes autres commandes comme "sudo", "dev", "owner", etc.
             }
         } catch (err) {
             console.log('Erreur message:', err);
@@ -79,4 +85,5 @@ async function startBot() {
     });
 }
 
+// Démarre le bot
 startBot();
