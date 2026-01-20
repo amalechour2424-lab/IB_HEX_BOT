@@ -26,20 +26,37 @@ app.listen(PORT, () => console.log(`Serveur actif sur le port ${PORT}`));
 
 // ------------------- SESSION -------------------
 const SESSION_FILE = './session.json';
-let auth = { creds: {}, keys: {} };
+
+let authState = {
+    creds: {
+        me: undefined,
+        noiseKey: {},
+        signedIdentityKey: {},
+        signedPreKey: {},
+        registrationId: 0,
+        advSecretKey: Buffer.alloc(0).toString('base64'),
+        nextPreKeyId: 1,
+        firstUnuploadedPreKeyId: 1,
+        serverHasPreKeys: false,
+        accountSettings: {},
+        account: {}
+    },
+    keys: {}
+};
 
 if (fs.existsSync(SESSION_FILE)) {
     try {
-        auth = JSON.parse(fs.readFileSync(SESSION_FILE));
+        authState = JSON.parse(fs.readFileSync(SESSION_FILE));
+        console.log('✅ Session chargée depuis session.json');
     } catch (err) {
-        console.log('session.json corrompu, démarrage avec session vide.');
+        console.log('❌ session.json corrompu, utilisation d’une session vide.');
     }
 }
 
 // ------------------- BOT WHATSAPP -------------------
 async function startBot() {
     const sock = makeWASocket({
-        auth,
+        auth: authState,
         printQRInTerminal: false
     });
 
@@ -65,7 +82,7 @@ async function startBot() {
         }
     });
 
-    // Sauvegarde automatique de la session
+    // Sauvegarde automatique
     sock.ev.on('creds.update', () => {
         fs.writeFileSync(SESSION_FILE, JSON.stringify(sock.authState, null, 2));
     });
@@ -82,7 +99,7 @@ async function startBot() {
             if (text.startsWith('Ib')) {
                 const command = text.slice(2).trim().toLowerCase();
 
-                // ---------------- COMMANDES DE BASE ----------------
+                // -------- COMMANDES DE BASE --------
                 if (command === 'menu') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Voici le menu IB_HEX_BOT 🥷' });
                 } else if (command === 'alive') {
