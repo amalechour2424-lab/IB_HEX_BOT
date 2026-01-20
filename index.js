@@ -1,8 +1,7 @@
 // ------------------- IMPORTS -------------------
 const { default: makeWASocket, DisconnectReason } = require('@whiskeysockets/baileys');
-const { Boom } = require('@hapi/boom');
-const fs = require('fs');
 const QRCode = require('qrcode');
+const fs = require('fs');
 const express = require('express');
 
 // ------------------- EXPRESS -------------------
@@ -27,16 +26,20 @@ app.listen(PORT, () => console.log(`Serveur actif sur le port ${PORT}`));
 
 // ------------------- SESSION -------------------
 const SESSION_FILE = './session.json';
-let session = {};
+let auth = { creds: {}, keys: {} };
 
 if (fs.existsSync(SESSION_FILE)) {
-    session = JSON.parse(fs.readFileSync(SESSION_FILE));
+    try {
+        auth = JSON.parse(fs.readFileSync(SESSION_FILE));
+    } catch (err) {
+        console.log('session.json corrompu, démarrage avec session vide.');
+    }
 }
 
 // ------------------- BOT WHATSAPP -------------------
 async function startBot() {
     const sock = makeWASocket({
-        auth: session,
+        auth,
         printQRInTerminal: false
     });
 
@@ -79,7 +82,7 @@ async function startBot() {
             if (text.startsWith('Ib')) {
                 const command = text.slice(2).trim().toLowerCase();
 
-                // -------- COMMANDES DE BASE --------
+                // ---------------- COMMANDES DE BASE ----------------
                 if (command === 'menu') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Voici le menu IB_HEX_BOT 🥷' });
                 } else if (command === 'alive') {
@@ -90,17 +93,7 @@ async function startBot() {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Propriétaire : IbSacko' });
                 } else if (command === 'dev') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Développeur : Sacko' });
-                }
-
-                // -------- COMMANDES OWNER EXEMPLES --------
-                else if (command === 'join') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Commande join exécutée (exemple)' });
-                } else if (command === 'leave') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Commande leave exécutée (exemple)' });
-                }
-
-                // Commande inconnue
-                else {
+                } else {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Commande inconnue. Tape Ib menu pour voir la liste.' });
                 }
             }
