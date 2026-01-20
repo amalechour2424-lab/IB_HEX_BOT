@@ -1,6 +1,7 @@
 // ------------------- IMPORTS -------------------
-const { default: makeWASocket, useSingleFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, DisconnectReason } = require('@whiskeysockets/baileys');
 const { Boom } = require('@hapi/boom');
+const fs = require('fs');
 const QRCode = require('qrcode');
 const express = require('express');
 
@@ -8,12 +9,10 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Page principale
 app.get('/', (req, res) => {
     res.send('IB_HEX_BOT est en ligne 🥷');
 });
 
-// Page QR code
 app.get('/qr', async (req, res) => {
     if (!global.qrCodeString) return res.send('QR non généré pour le moment.');
     try {
@@ -27,12 +26,17 @@ app.get('/qr', async (req, res) => {
 app.listen(PORT, () => console.log(`Serveur actif sur le port ${PORT}`));
 
 // ------------------- SESSION -------------------
-const { state, saveState } = useSingleFileAuthState('./session.json');
+const SESSION_FILE = './session.json';
+let session = {};
+
+if (fs.existsSync(SESSION_FILE)) {
+    session = JSON.parse(fs.readFileSync(SESSION_FILE));
+}
 
 // ------------------- BOT WHATSAPP -------------------
 async function startBot() {
     const sock = makeWASocket({
-        auth: state,
+        auth: session,
         printQRInTerminal: false
     });
 
@@ -41,7 +45,7 @@ async function startBot() {
         const { connection, lastDisconnect, qr } = update;
 
         if (qr) {
-            global.qrCodeString = qr; // stocke le QR pour /qr
+            global.qrCodeString = qr;
             console.log('QR reçu ! Ouvre /qr pour le scanner avec WhatsApp.');
         }
 
@@ -49,7 +53,7 @@ async function startBot() {
             const reason = lastDisconnect?.error?.output?.statusCode;
             console.log('Connexion fermée, raison :', reason);
             if (reason !== DisconnectReason.loggedOut) {
-                startBot(); // reconnect automatique
+                startBot();
             } else {
                 console.log('❌ Déconnecté définitivement, supprime session.json pour recommencer.');
             }
@@ -59,7 +63,9 @@ async function startBot() {
     });
 
     // Sauvegarde automatique de la session
-    sock.ev.on('creds.update', saveState);
+    sock.ev.on('creds.update', () => {
+        fs.writeFileSync(SESSION_FILE, JSON.stringify(sock.authState, null, 2));
+    });
 
     // Gestion des messages
     sock.ev.on('messages.upsert', async (m) => {
@@ -70,14 +76,14 @@ async function startBot() {
             const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
             if (!text) return;
 
-            if (text.startsWith('Ib')) { // préfixe obligatoire
+            if (text.startsWith('Ib')) {
                 const command = text.slice(2).trim().toLowerCase();
 
-                // ---------------- COMMANDES DE BASE ----------------
+                // -------- COMMANDES DE BASE --------
                 if (command === 'menu') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Voici le menu IB_HEX_BOT 🥷' });
                 } else if (command === 'alive') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'IB_HEX_BOT est actif ! ✅' });
+                    await sock.sendMessage(msg.key.remoteJid, { text: 'IB_HEX_BOT est actif ✅' });
                 } else if (command === 'ping') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Pong 🏓' });
                 } else if (command === 'owner') {
@@ -86,43 +92,11 @@ async function startBot() {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Développeur : Sacko' });
                 }
 
-                // ---------------- COMMANDES OWNER ----------------
+                // -------- COMMANDES OWNER EXEMPLES --------
                 else if (command === 'join') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Commande join exécutée (exemple)' });
                 } else if (command === 'leave') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'Commande leave exécutée (exemple)' });
-                } else if (command === 'update') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Bot mis à jour (exemple)' });
-                }
-
-                // ---------------- COMMANDES IA ----------------
-                else if (command === 'ai' || command === 'chatbot' || command === 'gpt') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'IA en cours (exemple)' });
-                }
-
-                // ---------------- CONVERTISSEUR ----------------
-                else if (command === 'attp' || command === 'sticker') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Conversion en sticker (exemple)' });
-                }
-
-                // ---------------- RECHERCHE ----------------
-                else if (command === 'google' || command === 'video' || command === 'song') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Recherche en cours (exemple)' });
-                }
-
-                // ---------------- DIVERTISSEMENT ----------------
-                else if (command === 'goodnight' || command === 'anime' || command === 'profile') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Fun command executed (exemple)' });
-                }
-
-                // ---------------- REACTIONS ----------------
-                else if (command === 'wave' || command === 'dance' || command === 'smile') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Reaction exécutée (exemple)' });
-                }
-
-                // ---------------- HENTAI ----------------
-                else if (command === 'hentai' || command === 'hneko') {
-                    await sock.sendMessage(msg.key.remoteJid, { text: 'Hentai command (exemple)' });
                 }
 
                 // Commande inconnue
