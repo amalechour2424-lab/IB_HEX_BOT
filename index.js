@@ -26,9 +26,10 @@ app.get('/qr', async (req, res) => {
 
 app.listen(PORT, () => console.log(`Serveur actif sur le port ${PORT}`));
 
-// ------------------- WHATSAPP -------------------
+// ------------------- SESSION -------------------
 const { state, saveState } = useSingleFileAuthState('./session.json');
 
+// ------------------- BOT WHATSAPP -------------------
 async function startBot() {
     const sock = makeWASocket({
         auth: state,
@@ -57,6 +58,7 @@ async function startBot() {
         }
     });
 
+    // Sauvegarde automatique de la session
     sock.ev.on('creds.update', saveState);
 
     // Gestion des messages
@@ -77,7 +79,7 @@ async function startBot() {
                 } else if (command === 'alive') {
                     await sock.sendMessage(msg.key.remoteJid, { text: 'IB_HEX_BOT est actif ! ✅' });
                 }
-                // Ici tu peux ajouter toutes tes autres commandes comme "sudo", "dev", "owner", etc.
+                // Ajoute ici toutes tes autres commandes du menu IB_HEX_BOT
             }
         } catch (err) {
             console.log('Erreur message:', err);
